@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Energi VR 3D - IPAS Kelas IV SD</title>
+    <!-- Library A-Frame untuk WebVR 3D -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+        #ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.85);
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 15px;
+            z-index: 999;
+            text-align: center;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-overlay">
+        ⚡ <strong>Laboratorium Petualangan Energi 3D</strong><br>
+        Arahkan titik tengah pandangan (kursor) ke objek atau karakter untuk mendengarkan penjelasan!
+    </div>
+
+    <!-- SCENE A-FRAME VR -->
+    <a-scene embedded style="height: 100vh; width: 100vw;">
+        
+        <!-- KAMERA & GAZE CURSOR (UNTUK HEADSET VR / HANDPHONE) -->
+        <a-entity id="rig" position="0 1.6 0">
+            <a-camera look-controls raycaster="objects: .clickable">
+                <a-cursor 
+                    id="cursor"
+                    animation__click="property: scale; startEvents: click; easing: easeInCubic; durability: 150; from: 0.1 0.1 0.1; to: 1 1 1"
+                    animation__fusing="property: fusing; startEvents: fusing; easing: easeInCubic; durability: 1200; from: 1 1 1; to: 0.1 0.1 0.1"
+                    event-set__mouseenter="_event: mouseenter; color: #fbbf24"
+                    event-set__mouseleave="_event: mouseleave; color: #ffffff"
+                    fuse="true" 
+                    fuse-timeout="1200"
+                    material="color: #ffffff; shader: flat"
+                    position="0 0 -1"
+                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03">
+                </a-cursor>
+            </a-camera>
+        </a-entity>
+
+        <!-- LINGKUNGAN / RUANGAN RUANG KELAS VR -->
+        <a-sky color="#0f172a"></a-sky>
+        <a-plane position="0 0 0" rotation="-90 0 0" width="24" height="24" color="#1e293b"></a-plane>
+
+        <!-- KARAKTER PEMANDU ANIMASI (Odi & Teman) -->
+        <a-group position="0 1.5 -3.5">
+            <!-- Karakter 1 (Odi - Siswa SD) -->
+            <a-capsule position="-0.8 0 0" radius="0.3" height="1.2" color="#3b82f6" class="clickable" onclick="playAudioIntro()">
+                <a-sphere position="0 0.7 0" radius="0.25" color="#fde047"></a-sphere>
+            </a-capsule>
+            <!-- Karakter 2 (Teman Odi - Siswi SD) -->
+            <a-capsule position="0.8 0 0" radius="0.3" height="1.2" color="#ec4899" class="clickable" onclick="playAudioIntro()">
+                <a-sphere position="0 0.7 0" radius="0.25" color="#fde047"></a-sphere>
+            </a-capsule>
+            
+            <a-text value="Hai! Kami Odi & Teman-Teman!\nAyo pelajari perubahan energi di sekitar kita!" 
+                    position="0 1.5 0" align="center" color="#ffffff" width="4" background="color: #1e3a8a"></a-text>
+        </a-group>
+
+        <!-- OBJEK 1: LAMPU (LISTRIK -> CAHAYA) -->
+        <a-group position="-3 1.5 -2">
+            <a-sphere class="clickable" radius="0.4" color="#fef08a" 
+                      animation="property: material.color; to: #f59e0b; dir: alternate; loop: true; dur: 1000"
+                      onclick="showExplanation('lampu-card')">
+            </a-sphere>
+            <a-cylinder position="0 -0.6 0" radius="0.1" height="0.8" color="#64748b"></a-cylinder>
+            <a-text value="💡 Lampu Belajar" position="0 -1.2 0" align="center" color="#ffffff" width="3.5"></a-text>
+
+            <!-- Papan Edukasi -->
+            <a-plane id="lampu-card" class="info-card" position="0 1.2 0" width="2.4" height="1.2" color="#1e3a8a" visible="false">
+                <a-text value="Perubahan Energi pada Lampu:\n\nEnergi Listrik ➔ Energi Cahaya\n\n(Lampu menyalakan ruangan yang gelap)" align="center" color="#ffffff" width="2.2" position="0 0 0.01"></a-text>
+            </a-plane>
+        </a-group>
+
+        <!-- OBJEK 2: KIPAS ANGIN (LISTRIK -> GERAK) -->
+        <a-group position="-1 1.5 -2">
+            <a-box class="clickable" width="0.6" height="0.6" depth="0.2" color="#06b6d4"
+                   animation="property: rotation; to: 0 0 360; loop: true; dur: 800; easing: linear"
+                   onclick="showExplanation('kipas-card')">
+            </a-box>
+            <a-cylinder position="0 -0.6 0" radius="0.1" height="0.8" color="#64748b"></a-cylinder>
+            <a-text value="🌀 Kipas Angin" position="0 -1.2 0" align="center" color="#ffffff" width="3.5"></a-text>
+
+            <a-plane id="kipas-card" class="info-card" position="0 1.2 0" width="2.4" height="1.2" color="#1e3a8a" visible="false">
+                <a-text value="Perubahan Energi pada Kipas:\n\nEnergi Listrik ➔ Energi Gerak\n\n(Motor memutar baling-baling kipas)" align="center" color="#ffffff" width="2.2" position="0 0 0.01"></a-text>
+            </a-plane>
+        </a-group>
+
+        <!-- OBJEK 3: RICE COOKER (LISTRIK -> PANAS) -->
+        <a-group position="1 1.5 -2">
+            <a-cylinder class="clickable" radius="0.4" height="0.6" color="#f97316"
+                        animation="property: position; to: 1 1.6 -2; dir: alternate; loop: true; dur: 1500"
+                        onclick="showExplanation('rice-card')">
+            </a-cylinder>
+            <a-cylinder position="0 -0.6 0" radius="0.1" height="0.8" color="#64748b"></a-cylinder>
+            <a-text value="🍚 Rice Cooker" position="0 -1.2 0" align="center" color="#ffffff" width="3.5"></a-text>
+
+            <a-plane id="rice-card" class="info-card" position="0 1.2 0" width="2.4" height="1.2" color="#1e3a8a" visible="false">
+                <a-text value="Perubahan Energi Penanak Nasi:\n\nEnergi Listrik ➔ Energi Panas\n\n(Elemen pemanas memasak beras jadi nasi)" align="center" color="#ffffff" width="2.2" position="0 0 0.01"></a-text>
+            </a-plane>
+        </a-group>
+
+        <!-- OBJEK 4: SEPEDA / TUBUH MANUSIA (KIMIA -> GERAK) -->
+        <a-group position="3 1.5 -2">
+            <a-torus class="clickable" radius="0.3" radius-tubular="0.05" color="#10b981"
+                     animation="property: rotation; to: 360 0 0; loop: true; dur: 2000; easing: linear"
+                     onclick="showExplanation('sepeda-card')">
+            </a-torus>
+            <a-cylinder position="0 -0.6 0" radius="0.1" height="0.8" color="#64748b"></a-cylinder>
+            <a-text value="🚲 Aktivitas Tubuh" position="0 -1.2 0" align="center" color="#ffffff" width="3.5"></a-text>
+
+            <a-plane id="sepeda-card" class="info-card" position="0 1.2 0" width="2.4" height="1.2" color="#1e3a8a" visible="false">
+                <a-text value="Energi Tubuh & Makanan:\n\nEnergi Kimia ➔ Energi Gerak\n\n(Makanan memberi tenaga untuk mengayuh sepeda)" align="center" color="#ffffff" width="2.2" position="0 0 0.01"></a-text>
+            </a-plane>
+        </a-group>
+
+    </a-scene>
+
+    <!-- SCRIPT INTERAKSI -->
+    <script>
+        function showExplanation(cardId) {
+            // Sembunyikan kartu informasi lain
+            const cards = document.querySelectorAll('.info-card');
+            cards.forEach(c => c.setAttribute('visible', 'false'));
+
+            // Tampilkan kartu yang dipilih
+            const selectedCard = document.getElementById(cardId);
+            if (selectedCard) {
+                selectedCard.setAttribute('visible', 'true');
+            }
+        }
+
+        function playAudioIntro() {
+            alert("Odi: 'Teman-teman, tahu kah kamu kalau energi bisa berubah bentuk dari satu bentuk ke bentuk lainnya?'");
+        }
+    </script>
+</body>
+</html>
